@@ -1,3 +1,0 @@
-
-pyttsx3==2.90
-textblob==0.17.1

@@ -1,0 +1,15 @@
+# The Empathy Engine Requirements
+
+# Core dependencies
+textblob>=0.17.1
+
+# Basic TTS (fallback)
+pyttsx3>=2.90
+
+# Premium TTS engines (install in venv for best results)
+gtts>=2.3.0              # Google Text-to-Speech
+edge-tts>=6.1.0          # Microsoft Edge TTS (highest quality)
+pygame>=2.1.0            # For audio playback
+
+# Optional: AWS Polly support
+# boto3>=1.26.0           # Uncomment for AWS Polly support

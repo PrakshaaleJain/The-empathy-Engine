@@ -100,3 +100,5 @@ Audio files are saved in the `output/` directory as high-quality `.wav` files.
 | Edge TTS | ⭐⭐⭐⭐⭐ | Required | Medium | Production use |
 | Google TTS | ⭐⭐⭐⭐ | Required | Easy | General use |  
 | Enhanced Espeak | ⭐⭐⭐ | No | Minimal | Offline/testing |
+
+## I have taken the help to AI in some portion of the code rather than writing the whole code from sccrath by them.

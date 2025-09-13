@@ -19,7 +19,7 @@ if [[ "$VIRTUAL_ENV" == "" ]]; then
     fi
 fi
 
-echo "📦 Installing system dependencies..."
+echo "Installing system dependencies..."
 
 # Install system audio dependencies
 sudo apt update

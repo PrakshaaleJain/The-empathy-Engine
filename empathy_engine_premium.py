@@ -12,7 +12,8 @@ import subprocess
 import tempfile
 from textblob import TextBlob
 
-# Try to import premium TTS engines
+
+# Try for different version of TTS
 try:
     import edge_tts
     EDGE_TTS_AVAILABLE = True
@@ -41,8 +42,8 @@ class EmotionDetector:
         Returns: (emotion_category, polarity, intensity)
         """
         blob = TextBlob(text)
-        polarity = blob.sentiment.polarity  # -1 to 1
-        subjectivity = blob.sentiment.subjectivity  # 0 to 1
+        polarity = blob.sentiment.polarity 
+        subjectivity = blob.sentiment.subjectivity 
         
         # Classify emotion based on polarity
         if polarity > 0.3:
@@ -56,7 +57,6 @@ class EmotionDetector:
         else:
             emotion = "neutral"
         
-        # Calculate intensity (0 to 1)
         intensity = min(abs(polarity) + (subjectivity * 0.3), 1.0)
         
         return emotion, polarity, intensity
@@ -93,11 +93,11 @@ class PremiumVoiceModulator:
             "neutral": "+0%"
         }
         
-        print(f"🎙️ Premium Voice Engine initialized")
+        print(f"Premium Voice Engine initialized")
         print(f"Available engines: {', '.join(self.available_engines)}")
         
         if engine_type == "edge" and "edge-tts" not in self.available_engines:
-            print("⚠️  Edge TTS not available, falling back to next best option")
+            print("Edge TTS not available, falling back to next best option")
             if "gtts" in self.available_engines:
                 self.engine_type = "gtts"
             elif "espeak" in self.available_engines:
@@ -137,7 +137,7 @@ class PremiumVoiceModulator:
             if intensity < 0.3:
                 style = "friendly"  # Use neutral style for low intensity
             
-            print(f"  🎭 Using Edge TTS")
+            print(f"Using Edge TTS")
             print(f"    - Voice: {voice}")
             print(f"    - Style: {style}")
             print(f"    - Rate: {rate}")
@@ -153,7 +153,7 @@ class PremiumVoiceModulator:
                 await communicate.save(output_file)
                 
                 if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
-                    print(f"    ✅ High-quality audio saved to: {output_file}")
+                    print(f"High-quality audio saved to: {output_file}")
                     return True
                 else:
                     raise Exception("No audio file generated with simple method")
@@ -178,14 +178,14 @@ class PremiumVoiceModulator:
                 await communicate.save(output_file)
                 
                 if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
-                    print(f"    ✅ High-quality audio saved to: {output_file}")
+                    print(f"High-quality audio saved to: {output_file}")
                     return True
                 else:
-                    print(f"    ❌ Failed to generate audio file")
+                    print(f"Failed to generate audio file")
                     return False
                 
         except Exception as e:
-            print(f"    ❌ Edge TTS error: {e}")
+            print(f"Edge TTS error: {e}")
             return False
     
     def synthesize_gtts(self, text: str, emotion: str, intensity: float, output_file: str):
@@ -217,22 +217,20 @@ class PremiumVoiceModulator:
             tts.save(output_file)
             
             if os.path.exists(output_file) and os.path.getsize(output_file) > 0:
-                print(f"    ✅ Audio saved to: {output_file}")
+                print(f"Audio saved to: {output_file}")
                 return True
             else:
-                print(f"    ❌ Failed to generate audio file")
+                print(f"Failed to generate audio file")
                 return False
                 
         except Exception as e:
-            print(f"    ❌ Google TTS error: {e}")
+            print(f"Google TTS error: {e}")
             return False
     
     def synthesize_espeak_cmd(self, text: str, emotion: str, intensity: float, output_file: str):
         """Generate speech using espeak command line with better settings"""
         try:
-            print(f"  🔊 Using Enhanced Espeak")
-            
-            # Select better voice based on emotion
+            print(f"Using Enhanced Espeak")
             voice_map = {
                 "happy": "en-us+f3",      # Female voice, higher pitch
                 "excited": "en-us+f4",    # Female voice, even higher
@@ -282,14 +280,14 @@ class PremiumVoiceModulator:
             result = subprocess.run(cmd, capture_output=True, text=True)
             
             if result.returncode == 0 and os.path.exists(output_file):
-                print(f"    ✅ Audio saved to: {output_file}")
+                print(f"Audio saved to: {output_file}")
                 return True
             else:
-                print(f"    ❌ Espeak failed: {result.stderr}")
+                print(f"Espeak failed: {result.stderr}")
                 return False
                 
         except Exception as e:
-            print(f"    ❌ Espeak command error: {e}")
+            print(f"Espeak command error: {e}")
             return False
     
     async def synthesize(self, text: str, emotion: str, intensity: float, output_file: str):
@@ -341,16 +339,16 @@ class PremiumEmpathyEngine:
     async def process_text(self, text: str, output_filename: str = None) -> str:
         """Process text through the premium empathy engine"""
         print("\n" + "="*60)
-        print("🎭 THE PREMIUM EMPATHY ENGINE")
+        print("THE PREMIUM EMPATHY ENGINE")
         print("="*60)
         
         # Step 1: Analyze emotion
-        print(f"\n📝 Input Text: \"{text}\"")
-        print("\n🔍 Analyzing emotion...")
+        print(f"\n Input Text: \"{text}\"")
+        print("\n Analyzing emotion...")
         
         emotion, polarity, intensity = self.emotion_detector.analyze(text)
         
-        print(f"\n📊 Emotion Analysis:")
+        print(f"\n Emotion Analysis:")
         print(f"  - Detected Emotion: {emotion.upper()}")
         print(f"  - Sentiment Polarity: {polarity:+.2f}")
         print(f"  - Emotional Intensity: {intensity:.1%}")
@@ -363,10 +361,10 @@ class PremiumEmpathyEngine:
         output_path = os.path.join(self.output_dir, output_filename)
         
         # Step 3: Synthesize speech with premium quality
-        print(f"\n🎙️ Synthesizing premium quality speech...")
+        print(f"\n Synthesizing premium quality speech...")
         await self.voice_modulator.synthesize(text, emotion, intensity, output_path)
         
-        print(f"\n✅ Processing complete!")
+        print(f"\n Processing complete!")
         print("="*60)
         
         return output_path

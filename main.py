@@ -44,9 +44,32 @@ class VoiceModulator:
     """Modulates TTS parameters based on emotion"""
     
     def __init__(self):
-        self.engine = pyttsx3.init()
+        self.engine = None
         self.base_rate = 150  # Words per minute
         self.base_volume = 0.9  # 0.0 to 1.0
+        self.tts_available = False
+        
+        # Try to initialize pyttsx3 with fallback options
+        try:
+            self.engine = pyttsx3.init()
+            self.tts_available = True
+            print("TTS engine initialized successfully")
+        except Exception as e:
+            print(f"Warning: TTS engine initialization failed: {e}")
+            print("Running in text-only mode. Install espeak or other TTS dependencies for voice output.")
+            try:
+                # Try different TTS drivers
+                for driver in ['sapi5', 'nsss', 'espeak']:
+                    try:
+                        self.engine = pyttsx3.init(driver)
+                        self.tts_available = True
+                        print(f"TTS engine initialized with {driver} driver")
+                        break
+                    except:
+                        continue
+            except Exception as fallback_error:
+                print(f"All TTS drivers failed: {fallback_error}")
+                self.engine = None
         
         # Emotion-to-voice parameter mappings
         self.emotion_profiles = {
@@ -85,19 +108,23 @@ class VoiceModulator:
         rate = self.base_rate * (1 + (profile["rate_modifier"] - 1) * intensity)
         volume = min(self.base_volume * (1 + (profile["volume_modifier"] - 1) * intensity), 1.0)
         
-        # Set engine properties
-        self.engine.setProperty('rate', int(rate))
-        self.engine.setProperty('volume', volume)
-        
-        # Note: Pitch control varies by TTS engine and OS
-        # This is a simplified approach
-        voices = self.engine.getProperty('voices')
-        if voices:
-            # Try to select voice based on pitch preference
-            if profile["pitch_shift"] > 0 and len(voices) > 1:
-                self.engine.setProperty('voice', voices[1].id)  # Often a higher-pitched voice
-            else:
-                self.engine.setProperty('voice', voices[0].id)
+        # Set engine properties only if TTS is available
+        if self.tts_available and self.engine:
+            try:
+                self.engine.setProperty('rate', int(rate))
+                self.engine.setProperty('volume', volume)
+                
+                # Note: Pitch control varies by TTS engine and OS
+                # This is a simplified approach
+                voices = self.engine.getProperty('voices')
+                if voices:
+                    # Try to select voice based on pitch preference
+                    if profile["pitch_shift"] > 0 and len(voices) > 1:
+                        self.engine.setProperty('voice', voices[1].id)  # Often a higher-pitched voice
+                    else:
+                        self.engine.setProperty('voice', voices[0].id)
+            except Exception as e:
+                print(f"Warning: Could not apply voice settings: {e}")
         
         return rate, volume, profile["pitch_shift"]
 
@@ -110,9 +137,25 @@ class VoiceModulator:
         print(f"    - Volume: {volume:.2f}")
         print(f"    - Pitch adjustment: {pitch:+d}")
         
-        # Generate speech
-        self.engine.save_to_file(text, output_file)
-        self.engine.runAndWait()
+        # Generate speech only if TTS is available
+        if self.tts_available and self.engine:
+            try:
+                self.engine.save_to_file(text, output_file)
+                self.engine.runAndWait()
+                print(f"    - Audio saved to: {output_file}")
+            except Exception as e:
+                print(f"    - Error generating audio: {e}")
+                print(f"    - Text output only: {text}")
+        else:
+            print(f"    - TTS not available, text output only: {text}")
+            # Create a simple text file instead
+            with open(output_file.replace('.wav', '.txt'), 'w') as f:
+                f.write(f"Text: {text}\n")
+                f.write(f"Emotion: {emotion}\n")
+                f.write(f"Intensity: {intensity:.2f}\n")
+                f.write(f"Rate: {rate:.0f} wpm\n")
+                f.write(f"Volume: {volume:.2f}\n")
+                f.write(f"Pitch adjustment: {pitch:+d}\n")
 
 class EmpathyEngine:
     """Main service orchestrating emotion detection and voice synthesis"""
